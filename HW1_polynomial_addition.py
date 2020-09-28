@@ -9,11 +9,11 @@ class Polynomial:
 
     def __str__(self):
         if self.exp == 0:
-            return f"{self.coef}"
-        return f"{self.coef}x^{self.exp}"
+            return "{}".format(self.coef)
+        return "{}x^{}".format(self.coef, self.exp)
 
     def __repr__(self):
-        return f"Polynomial({self.coef}x^{self.exp})"
+        return "Polynomial({}x^{})".format(self.coef, self.exp)
 
     def hasSameExp(self, poly):
         if self.exp == poly.exp:
@@ -31,8 +31,9 @@ class Polynomial:
     @classmethod
     def parseString(cls, string) -> list:
         '''將題目的字串轉成Polynomial物件'''
+        import re
         lst = list()
-        for p in string.split('+'): # p = 5x^5
+        for p in re.split('+',string): # p = 5x^5
             coef, exp = 0, 0
             # 判斷指數係數
             content = p.split('x^')
