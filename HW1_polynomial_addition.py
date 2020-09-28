@@ -30,10 +30,10 @@ class Polynomial:
 
     @classmethod
     def parseString(cls, string) -> list:
-        '''將題目的字串轉成Polynomial物件'''
+        '''將題目的字串轉成Polynomial物件，目前只能處理+號，-號會被當+號'''
         import re
         lst = list()
-        for p in re.split('+',string): # p = 5x^5
+        for p in re.split('+-',string): # p = 5x^5
             coef, exp = 0, 0
             # 判斷指數係數
             content = p.split('x^')
