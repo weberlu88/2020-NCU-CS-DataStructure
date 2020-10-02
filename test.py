@@ -1,3 +1,5 @@
+# 測式parse string用的!! 已成功解析輸入字串>>貼回主程式
+
 def num(s):
     try:
         return int(s)

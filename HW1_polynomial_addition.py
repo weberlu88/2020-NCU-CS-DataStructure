@@ -1,3 +1,5 @@
+# MIS Senior, Weber Lu.
+
 def num(s):
     '''Convert string into int/float.'''
     try:
@@ -20,14 +22,23 @@ class Polynomial:
 
     def __str__(self):
         if self.exp == 0:
-            return "{}".format(self.coef)
-        return "{}x^{}".format(self.coef, self.exp)
+            return "{}".format(self.coef) if (self.coef < 0) else "+{}".format(self.coef)
+        elif self.coef == 1:
+            return "+x^{}".format(self.exp)
+        elif self.coef == -1:
+            return "-x^{}".format(self.exp)
+        return "{}x^{}".format(self.coef, self.exp) if (self.coef < 0) else "+{}x^{}".format(self.coef, self.exp)
 
     def __repr__(self):
         # return "Polynomial({}x^{})".format(self.coef, self.exp)
+        # if positive than add '+' infront.
         if self.exp == 0:
-            return "{}".format(self.coef)
-        return "{}x^{}".format(self.coef, self.exp)
+            return "{}".format(self.coef) if (self.coef < 0) else "+{}".format(self.coef)
+        elif self.coef == 1:
+            return "+x^{}".format(self.exp)
+        elif self.coef == -1:
+            return "-x^{}".format(self.exp)
+        return "{}x^{}".format(self.coef, self.exp) if (self.coef < 0) else "+{}x^{}".format(self.coef, self.exp)
 
     @classmethod
     def compareExp(cls, poly1, poly2):
@@ -60,7 +71,7 @@ class Polynomial:
                     operator_idx.append({'idx': i, 'positive': True})
             return operator_idx
 
-        def splitPolyStr(string, operator_idx):
+        def splitPolyStr(string, operator_idx) -> list:
             '''Divid huge string into list of substings. Ex:['+5.5x^5', '+3x^3', '+1']. Complexity = O(n).'''
             polystr_lst = list()
             for i, v in enumerate(operator_idx):
@@ -117,7 +128,7 @@ class Polynomial:
             lst.append(newpoly)
         return lst
 
-def add2PolyList(a, b):
+def add2PolyList(a, b) -> list:
     '''A function that adds two polynomials(list like).'''
     lst = list()
     # When array a,b both not empty > looping.
@@ -150,29 +161,38 @@ def add2PolyList(a, b):
         lst.extend(b)
     return lst
 
-def printPolyList():
+def printPolyList(lst) -> None:
+    '''Print the list in mathematical format as the ANSWER.'''
+    first = True
+    for i in lst:
+        if first:
+            first = False
+            print(str(i)[1:], end='')
+        else:
+            print(i, end='')
     return
 
 def main():
     # polyStr1 = input()
     # polyStr2 = input()
+    # ex. 1
     # polyStr1 = "5x^5+3x^3+1"
     # polyStr2 = "4x^4+2x^2+x^1"
-    polyStr1 = "-4x^3+2.1"
-    polyStr2 = "-2.6x^3+4.9"
+    # ex. 2
+    # polyStr1 = "-4x^3+2.1"
+    # polyStr2 = "-2.6x^3+4.9"
+    # ex. 3
+    polyStr1 = "3.7x^5-4.7x^2"
+    polyStr2 = "5.7x^2-x^1+5"
+    
 
-    print(polyStr1, polyStr2)
+    # print(polyStr1, polyStr2)
     a = Polynomial.parseString(polyStr1)
     b = Polynomial.parseString(polyStr2)
     # print(a)
 
     answer = add2PolyList(a, b)
-    print(str(answer))
+    printPolyList(answer)
 
 if __name__ == '__main__':
-    # print("+1".split('+'))
     main()
-    # poly = Polynomial.parseString('x^0')
-    # print(poly)
-    # print('指數', type(poly[0].exp), poly[0].exp)
-    # print('係數', type(poly[0].coef), poly[0].coef)
