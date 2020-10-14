@@ -1,5 +1,6 @@
 ﻿// hw2 Maze.cpp : 此檔案包含 'main' 函式。程式會於該處開始執行及結束執行。
 #include <iostream>
+#include <climits>
 #include <list>
 #include <vector> 
 #include <algorithm>
@@ -8,20 +9,22 @@ using namespace std;
 /* Adjacency List C++ */
 class Graph
 {
-    int numVertices;
+    int numVertices, width, height;
     list<int>* adjLists; // array of vectors is used to store the graph in the form of an adjacency list 
     bool* visited; // boolean array visited[] which stores the information whether ith vertex is reached at least once in the Breadth first search
     int src = 0, dest = 0; //source vertex and destination vertex, init in constructor
-    int* pred, *dist; // maintain two items for each node in the graph: its current shortest distance, and the preceding node in the shortest path.
+    int* pred, * dist; // maintain two items for each node in the graph: its current shortest distance, and the preceding node in the shortest path.
 
     public:
         Graph(int vertices);
-        int getSrc();
-        int getDest();
         void addEdge(int src, int dest);
         void printGraph();
         bool BFS(int startVertex, int destVertix);
-        void printShortestDistance(int s, int dest, int v);
+        void printShortestDistance();
+        int getSrc();
+        int getDest();
+        void setWidth(int width);
+        void setHeight(int height);
 };
 
 /* Convert the maze(string) into Adjacency List */
@@ -33,8 +36,15 @@ int main()
     cin >> width >> height;
 
     Graph g = parseString(width, height);
-    g.printGraph();
+    //g.printGraph();
     bool find = g.BFS(g.getSrc(), g.getDest());
+    if (find) {
+        g.printShortestDistance();
+    }
+    else {
+        cout << "Given source and destination are not connected." << endl;
+    }
+       
 
     /*Graph g(4);
     g.addEdge(0, 1);
@@ -58,6 +68,10 @@ int Graph::getSrc() { return src; }
 
 // Get destination vertex
 int Graph::getDest() { return dest; }
+
+void Graph::setWidth(int width) { this->width = width; }
+
+void Graph::setHeight(int height) { this->height = height; }
 
 // Add edges to the graph, if edge exists do nothing.
 void Graph::addEdge(int src, int dest) {
@@ -107,8 +121,8 @@ bool Graph::BFS(int startVertex, int destVertex) {
     // standard BFS algorithm
     while ( ! queue.empty() ) {
         int currVertex = queue.front();
-        cout << "Visited " << currVertex << " ";
         queue.pop_front();
+        //cout << "Visited " << currVertex << " ";
 
         // Visit currVertex's neighbor and inqueue them
         for (i = adjLists[currVertex].begin(); i != adjLists[currVertex].end(); ++i) {
@@ -129,8 +143,31 @@ bool Graph::BFS(int startVertex, int destVertex) {
 }
 
 // Utility function to print the shortest distance between source vertex and destination vertex 
-void Graph::printShortestDistance(int s, int dest, int v) {
+void Graph::printShortestDistance() {
+    // predecessor[i] array stores predecessor of i, and distance array stores distance of i from source vertex
+    // vector path stores the shortest path. (stack like)
+    // We trace back from destination vertex to find the path.
+    vector<int> path;
+    int crawl = dest;
+    path.push_back(crawl);
+    while (pred[crawl] != -1) {
+        path.push_back(pred[crawl]);
+        crawl = pred[crawl];
+    }
 
+    // distance from source is in distance array 
+    //cout << "Shortest path length is : " << dist[dest];
+
+    // printing path from source to destination (print vector from back to forward)
+    int col = 0, row = 0;
+    //cout << "\nPath is::\n";
+    for (int i = path.size() - 1; i >= 0; i--) {
+         //cout << path[i] << " ";
+        col = path[i] % width + 1;
+        row = path[i] / width + 1;
+        cout << row << " " << col << endl; //Request output fromat: row, col
+    }
+        
 }
 
 // 位移量 to reach neighbor
@@ -165,6 +202,8 @@ Graph parseString(int width, int height) {
 
     // 2. Create a graph stores adjList
     Graph g(height*width);
+    g.setWidth(width);
+    g.setHeight(height);
     Offsets moves[8] = {
         {-1, -1}, //NW
         {0, -1}, //W
@@ -201,11 +240,16 @@ Graph parseString(int width, int height) {
     }
     return g;
 }
-/* test case1
+/* test case1:
 3 3
 0 1 1
 0 1 1
 1 0 0
+ans:
+1 1
+2 1
+3 2
+3 3
 
 test case2
 5 5
@@ -214,12 +258,24 @@ test case2
 0 1 1 1 1
 1 0 0 1 1
 1 1 1 0 0
+ans:
+1 1
+2 2
+3 1
+4 2
+4 3
+5 4
+5 5
 
-test case3
+test case3:
 3 3
 0 0 1
 0 0 1
 1 0 0
+ans:
+1 1
+2 2
+3 3
 */
 // 執行程式: Ctrl + F5 或 [偵錯] > [啟動但不偵錯] 功能表
 // 偵錯程式: F5 或 [偵錯] > [啟動偵錯] 功能表
