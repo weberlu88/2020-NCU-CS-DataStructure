@@ -11,14 +11,16 @@ class Graph
     int numVertices;
     list<int>* adjLists; // array of vectors is used to store the graph in the form of an adjacency list 
     bool* visited; // boolean array visited[] which stores the information whether ith vertex is reached at least once in the Breadth first search
-    int src, dest; //source vertex and destination vertex, init in constructor
+    int src = 0, dest = 0; //source vertex and destination vertex, init in constructor
     int* pred, *dist; // maintain two items for each node in the graph: its current shortest distance, and the preceding node in the shortest path.
 
     public:
         Graph(int vertices);
+        int getSrc();
+        int getDest();
         void addEdge(int src, int dest);
         void printGraph();
-        void BFS(int startVertex, int destVertix);
+        bool BFS(int startVertex, int destVertix);
         void printShortestDistance(int s, int dest, int v);
 };
 
@@ -32,7 +34,7 @@ int main()
 
     Graph g = parseString(width, height);
     g.printGraph();
-    g.BFS();
+    bool find = g.BFS(g.getSrc(), g.getDest());
 
     /*Graph g(4);
     g.addEdge(0, 1);
@@ -50,6 +52,12 @@ Graph::Graph(int vertices) {
     adjLists = new list<int>[vertices];
     src = 0, dest = vertices-1;
 }
+
+// Get source vertex
+int Graph::getSrc() { return src; }
+
+// Get destination vertex
+int Graph::getDest() { return dest; }
 
 // Add edges to the graph, if edge exists do nothing.
 void Graph::addEdge(int src, int dest) {
@@ -74,8 +82,10 @@ void Graph::printGraph() {
 // BFS algorithm
 // a modified version of BFS that stores predecessor of each vertex in array p 
 // and its distance from source in array d 
-void Graph::BFS(int startVertex, int destVertex) {
+bool Graph::BFS(int startVertex, int destVertex) {
     visited = new bool[numVertices];
+    dist = new int[numVertices];
+    pred = new int[numVertices];
     for (int i = 0; i < numVertices; i++) {
         visited[i] = false;
         dist[i] = INT_MAX;
@@ -94,19 +104,33 @@ void Graph::BFS(int startVertex, int destVertex) {
 
     list<int>::iterator i;
 
-    while (!queue.empty()) {
+    // standard BFS algorithm
+    while ( ! queue.empty() ) {
         int currVertex = queue.front();
         cout << "Visited " << currVertex << " ";
         queue.pop_front();
 
+        // Visit currVertex's neighbor and inqueue them
         for (i = adjLists[currVertex].begin(); i != adjLists[currVertex].end(); ++i) {
             int adjVertex = *i;
-            if (!visited[adjVertex]) {
+            if ( ! visited[adjVertex] ) {
                 visited[adjVertex] = true;
+                dist[adjVertex] = dist[currVertex] + 1; //neighbor's shortest distance = currVertex's distance +1 step
+                pred[adjVertex] = currVertex; //neighbor's preceding node = currVertex
                 queue.push_back(adjVertex);
+
+                // We stop BFS when we find destination. 
+                if (adjVertex == dest)
+                    return true;
             }
         }
     }
+    return false;
+}
+
+// Utility function to print the shortest distance between source vertex and destination vertex 
+void Graph::printShortestDistance(int s, int dest, int v) {
+
 }
 
 // 位移量 to reach neighbor
