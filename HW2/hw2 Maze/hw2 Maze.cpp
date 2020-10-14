@@ -6,7 +6,7 @@
 #include <algorithm>
 using namespace std;
 
-/* Adjacency List C++ */
+/* Adjacency List C++ , an undirected unweighted graph*/
 class Graph
 {
     int numVertices, width, height;
@@ -44,13 +44,12 @@ int main()
     else {
         cout << "Given source and destination are not connected." << endl;
     }
-       
 
-    /*Graph g(4);
+    /*Graph g(4); //Sample useage
     g.addEdge(0, 1);
     g.addEdge(0, 2);
     g.addEdge(1, 2);
-    g.addEdge(2, 0);
+    g.addEdge(2, 0); //Do nothing cause edge already exist (undirected)
     g.addEdge(2, 3);
     g.printGraph();*/
     system("pause");
@@ -69,8 +68,10 @@ int Graph::getSrc() { return src; }
 // Get destination vertex
 int Graph::getDest() { return dest; }
 
+// Set width of maze
 void Graph::setWidth(int width) { this->width = width; }
 
+// Set width of height
 void Graph::setHeight(int height) { this->height = height; }
 
 // Add edges to the graph, if edge exists do nothing.
@@ -85,8 +86,7 @@ void Graph::addEdge(int src, int dest) {
 // Print the graph
 void Graph::printGraph() {
     for (int d = 0; d < numVertices; ++d) {
-        cout << "\n Vertex "
-            << d << ":";
+        cout << "\n Vertex " << d << ":";
         for (auto x : adjLists[d])
             cout << "-> " << x;
         printf("\n");
