@@ -2,19 +2,24 @@
 #include <iostream>
 #include <list>
 #include <vector> 
+#include <algorithm>
 using namespace std;
 
 /* Adjacency List C++ */
 class Graph
 {
     int numVertices;
-    list<int>* adjLists;
+    list<int>* adjLists; // array of vectors is used to store the graph in the form of an adjacency list 
+    bool* visited; // boolean array visited[] which stores the information whether ith vertex is reached at least once in the Breadth first search
+    int src, dest; //source vertex and destination vertex, init in constructor
+    int* pred, *dist; // maintain two items for each node in the graph: its current shortest distance, and the preceding node in the shortest path.
 
     public:
         Graph(int vertices);
         void addEdge(int src, int dest);
-        void BFS(int startVertex);
         void printGraph();
+        void BFS(int startVertex, int destVertix);
+        void printShortestDistance(int s, int dest, int v);
 };
 
 /* Convert the maze(string) into Adjacency List */
@@ -27,6 +32,7 @@ int main()
 
     Graph g = parseString(width, height);
     g.printGraph();
+    g.BFS();
 
     /*Graph g(4);
     g.addEdge(0, 1);
@@ -38,16 +44,16 @@ int main()
     system("pause");
 }
 
-// Create a graph with given vertices,
-// and maintain an adjacency list
+// Create a graph with given vertices, and maintain an adjacency list
 Graph::Graph(int vertices) {
     numVertices = vertices;
     adjLists = new list<int>[vertices];
+    src = 0, dest = vertices-1;
 }
 
 // Add edges to the graph, if edge exists do nothing.
 void Graph::addEdge(int src, int dest) {
-    std::list<int>::iterator findIter = find(adjLists[src].begin(), adjLists[src].end(), dest);
+    std::list<int>::iterator findIter = std::find(adjLists[src].begin(), adjLists[src].end(), dest);
     if (findIter == adjLists[src].end()) {
         adjLists[src].push_back(dest);
         adjLists[dest].push_back(src);
@@ -65,13 +71,51 @@ void Graph::printGraph() {
     }
 }
 
+// BFS algorithm
+// a modified version of BFS that stores predecessor of each vertex in array p 
+// and its distance from source in array d 
+void Graph::BFS(int startVertex, int destVertex) {
+    visited = new bool[numVertices];
+    for (int i = 0; i < numVertices; i++) {
+        visited[i] = false;
+        dist[i] = INT_MAX;
+        pred[i] = -1;
+    }
+
+    // a queue to maintain queue of vertices whose 
+    // adjacency list is to be scanned as per normal DFS algorithm 
+    list<int> queue;
+
+    // now source is first to be visited and 
+    // distance from source to itself should be 0 
+    visited[startVertex] = true;
+    dist[startVertex] = 0;
+    queue.push_back(startVertex);
+
+    list<int>::iterator i;
+
+    while (!queue.empty()) {
+        int currVertex = queue.front();
+        cout << "Visited " << currVertex << " ";
+        queue.pop_front();
+
+        for (i = adjLists[currVertex].begin(); i != adjLists[currVertex].end(); ++i) {
+            int adjVertex = *i;
+            if (!visited[adjVertex]) {
+                visited[adjVertex] = true;
+                queue.push_back(adjVertex);
+            }
+        }
+    }
+}
+
 // 位移量 to reach neighbor
 struct Offsets {
     int vert;
     int horiz;
 };
 Graph parseString(int width, int height) {
-    // Read the input maze string, store with an extra large maze. (m+2) * (n+2) size.
+    // 1. Read the input maze string, store with an extra large maze. (m+2) * (n+2) size.
     vector<bool> maze;
     for (int j = 0; j < width+2; j++) // wall at first row
         maze.push_back(1);
@@ -87,15 +131,15 @@ Graph parseString(int width, int height) {
         maze.push_back(1);
 
     //print
-    cout << "\nprint maze:";
-    for (int i = 0; i < (height+2) * (width+2); i++) {
-        if (i % (width+2) == 0)
-            cout << endl;
-        cout << maze[i] << " ";
-    }
-    cout << "\n";
+    //cout << "\nprint maze:";
+    //for (int i = 0; i < (height+2) * (width+2); i++) {
+    //    if (i % (width+2) == 0)
+    //        cout << endl;
+    //    cout << maze[i] << " ";
+    //}
+    //cout << "\n";
 
-    //Create a graph stores adjList
+    // 2. Create a graph stores adjList
     Graph g(height*width);
     Offsets moves[8] = {
         {-1, -1}, //NW
@@ -115,13 +159,13 @@ Graph parseString(int width, int height) {
         for (int col = 1; col < width + 1; col++) {
             index = row * (width + 2) + col;
             //cout << index;
-            if ( !maze[index] ) {
-                //Check the 8 neighbors is connected or not
+            if ( ! maze[index] ) {
+                //If vertix, Check the 8 neighbors is connected or not, then create its edges
                 for (auto move : moves) {
                     next_row = row + move.vert;
                     next_col = col + move.horiz;
                     next_index = next_row * (width + 2) + next_col;
-                    if ( !maze[next_index] ) {
+                    if ( ! maze[next_index] ) {
                         src = (row-1) * (width) + (col-1);
                         dest = (next_row-1) * (width) + (next_col-1);
                         g.addEdge(src, dest);
@@ -133,19 +177,25 @@ Graph parseString(int width, int height) {
     }
     return g;
 }
-/* test1
+/* test case1
 3 3
 0 1 1
 0 1 1
 1 0 0
 
-test2
+test case2
 5 5
 0 1 1 0 1
 1 0 1 0 0
 0 1 1 1 1
 1 0 0 1 1
 1 1 1 0 0
+
+test case3
+3 3
+0 0 1
+0 0 1
+1 0 0
 */
 // 執行程式: Ctrl + F5 或 [偵錯] > [啟動但不偵錯] 功能表
 // 偵錯程式: F5 或 [偵錯] > [啟動偵錯] 功能表
