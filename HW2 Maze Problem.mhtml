@@ -94,11 +94,36 @@ s=3D"content"><p>=E8=BC=B8=E5=85=A5=E7=9A=84=E5=89=8D=E5=85=A9=E5=80=8B=E6=
 =B5=B0=E7=9A=84=E6=99=82=E5=80=99=E5=8F=AF=E4=BB=A5=E5=BE=80=E4=BB=BB=E6=84=
 =8F=E6=96=B9=E5=90=91(=E5=B7=A6=E3=80=81=E5=8F=B3=E3=80=81=E4=B8=8A=E3=80=
 =81=E4=B8=8B=E3=80=81=E5=B7=A6=E4=B8=8A=E3=80=81=E5=B7=A6=E4=B8=8B=E3=80=81=
-=E5=8F=B3=E4=B8=8A=E3=80=81=E5=8F=B3=E4=B8=8B)</p></p> <p data-v-ecbd690c=
+=E5=8F=B3=E4=B8=8A=E3=80=81=E5=8F=B3=E4=B8=8B)</p></p> 
+
+
+
+<p data-v-ecbd690c=
 =3D"" class=3D"title">=E8=BC=B8=E5=87=BA <!----></p> <p data-v-ecbd690c=3D"=
 " class=3D"content"><p>=E8=AB=8B=E8=BC=B8=E5=87=BA=E7=94=B1=E8=B5=B7=E9=BB=
 =9E=E8=87=B3=E7=B5=82=E9=BB=9E=E7=9A=84=E6=9C=80=E7=9F=AD=E8=B7=AF=E5=BE=91=
-</p></p>  <div data-v-ecbd690c=3D""><div data-v-ecbd690c=3D"" class=3D"flex=
+</p></p> 
+
+
+<p data-v-ecbd690c==3D"" class=3D"title">My解題思路 <!----></p>
+<p data-v-ecbd690c=3D"" clas=s=3D"content">
+<p>
+<ol>
+  <li>讀入迷宮   </li>
+  <li>建立相鄰串列        </li>
+    <ul>
+      <li>相鄰串列或相鄰矩陣都可以，我選擇相鄰串列，其實相鄰矩陣存取O(1)較快。                                                                   </li>
+    </ul>
+  <li>做bfs (廣度優先)                </li>
+</ol>
+    <ul>
+      <li>需要為多維護兩個array，每個node都記錄與起點最短距離和從哪個node來的。                                                                   </li>
+    </ul>
+</p>
+</p> 
+
+<p>
+ <div data-v-ecbd690c=3D""><div data-v-ecbd690c=3D"" class=3D"flex=
 -container sample"><div data-v-ecbd690c=3D"" class=3D"sample-input"><p data=
 -v-ecbd690c=3D"" class=3D"title">=E8=BC=B8=E5=85=A5=E7=AF=84=E4=BE=8B 1
                 <a data-v-ecbd690c=3D"" class=3D"copy"><i data-v-ecbd690c=
