@@ -6,20 +6,58 @@
 
 #include <iostream>
 #include <string>
+#include <stack>
 using namespace std;
 
+// Read infix string
 string ReadInput();
+// Convert infix to postfix
 string ToPostfix(string infix);
 
 int main()
 {
-    std::cout << ReadInput();
+    string input = ReadInput();
+    std::cout << input << endl;
+    ToPostfix(input);
 }
 
 string ReadInput() {
     string input;
     cin >> input;
     return input;
+}
+
+string ToPostfix(string infix) {
+    string postfix = ""; // return value
+    stack <char> stack;
+
+    for (char c : infix) {
+        // If c is operand -> output. Operand = 1, 2, 3, a, b, x, y...
+        if (isalnum(c)) {
+            postfix += c;
+        }
+        // If c is right-parenthesis, rparen ) -> pop until left-parenthesis
+        else if (c == ')') {
+            while (stack.top() != '(') {
+                postfix += stack.top();
+                stack.pop();
+            }
+            stack.pop(); // remove ( either
+        }
+        // If c is other operator, ex: +, -, *, /... -> pop operators in stack whose isp is greater or equal to c -> push c in stack
+        else {
+            while (true) {
+
+            }
+            stack.push(c);
+        }
+    }
+
+    // the input of infix is end, clear the stack
+    while (!stack.empty()) {
+        stack.pop();
+    }
+    return postfix;
 }
 
 // 執行程式: Ctrl + F5 或 [偵錯] > [啟動但不偵錯] 功能表
