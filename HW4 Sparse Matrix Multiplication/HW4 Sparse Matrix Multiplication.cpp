@@ -1,11 +1,52 @@
 ﻿// HW4 Sparse Matrix Multiplication.cpp : 此檔案包含 'main' 函式。程式會於該處開始執行及結束執行。
-//
+// @Author: NCU MIS Senior - Weber Lu
+// 1) Read two input matrices, and pasre into vector<Vertex> seperately.
+// 2) Do matrix multiplication algorithm, get the result.
+// 3) Print the result in format.
+// Notes:
+// a) Each matrix stores its 'Non-zero' elements in a vector<Vertex>.
+// b) Do not use normal matrix multiplication algorithm with O(n^3)
+// c) Eligible algorithm: ...
 
 #include <iostream>
+#include <vector>
+
+using namespace std;
+
+// Stores a Non-zero element.
+class Vertex {
+public:
+    int row = 0, col = 0, value = 0;
+};
+// Stores a complete matrix, contains info and list of elems.
+class Matrix {
+public:
+    int row_count, col_count, val_count = 0;
+    vector<Vertex> list;
+    Matrix(int row, int col) {
+        row_count = row;
+        col_count = row;
+    }
+};
+Matrix ParseInputMatrix(int row, int col); // Abstract the matrix's non-zero elements.
+Matrix MatrixMultiplication(Matrix *a, Matrix *b); // Perform multiplication algorithm.
+void PrintMatrix(Matrix); // Print matrix's non-zero elements.
 
 int main()
 {
-    std::cout << "Hello World!\n";
+    int row = 0, col = 0;
+    cin >> row >> col;
+    cout << row << col;
+}
+
+Matrix ParseInputMatrix(int row, int col) {
+    Matrix m(row, col); // declare and init
+    for (int i = 0; i < row; i++) {
+        for (int j = 0; j < col; j++) {
+            // if non zero, pushback & valcount++
+        }
+    }
+    return m;
 }
 
 // 執行程式: Ctrl + F5 或 [偵錯] > [啟動但不偵錯] 功能表
