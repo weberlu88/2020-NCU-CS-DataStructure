@@ -9,26 +9,32 @@
 // c) Eligible algorithm: ...
 
 #include <iostream>
+#include <stdlib.h>     /* atoi */
 #include <vector>
-
 using namespace std;
 
 // Stores a Non-zero element.
 class Vertex {
 public:
     int row = 0, col = 0, value = 0;
+    Vertex() {}
+    Vertex(int row, int col, int value) { this->row = row; this->col = col; this->value = value; }
 };
+
 // Stores a complete matrix, contains info and list of elems.
 class Matrix {
 public:
     int row_count, col_count, val_count = 0;
     vector<Vertex> list;
+    
     Matrix(int row, int col) {
         row_count = row;
         col_count = row;
     }
+    Matrix fast_transpose();
 };
-Matrix ParseInputMatrix(int row, int col); // Abstract the matrix's non-zero elements.
+
+Matrix ParseInputMatrix(int row, int col); // Abstract the matrix's non-zero elements. Row major.
 Matrix MatrixMultiplication(Matrix *a, Matrix *b); // Perform multiplication algorithm.
 void PrintMatrix(Matrix); // Print matrix's non-zero elements.
 
@@ -36,14 +42,24 @@ int main()
 {
     int row = 0, col = 0;
     cin >> row >> col;
-    cout << row << col;
+    Matrix m1 = ParseInputMatrix(row, col);
+
+    cin >> row >> col;
+    Matrix m2 = ParseInputMatrix(row, col);
 }
 
 Matrix ParseInputMatrix(int row, int col) {
     Matrix m(row, col); // declare and init
-    for (int i = 0; i < row; i++) {
-        for (int j = 0; j < col; j++) {
-            // if non zero, pushback & valcount++
+    char * input = new char[5];
+    for (int r = 0; r < row; r++) {
+        for (int c = 0; c < col; c++) {
+            // if non-zero element, pushback & valcount++
+            cin >> input;
+            int value = atoi(input);
+            if (value != 0) {
+                m.list.push_back(Vertex(r, c, value));
+                m.val_count++;
+            }
         }
     }
     return m;
