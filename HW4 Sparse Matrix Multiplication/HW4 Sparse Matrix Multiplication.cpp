@@ -59,7 +59,7 @@ int main()
     // testing T-transpose
     Matrix trans = m1.lazyTranspose();
     cout << "\n";
-    trans.print();
+    trans.prettyPrint();
 
     // Matrix result = m1.multiplication(m2);
     // result.print();
@@ -72,7 +72,7 @@ Matrix ParseInputMatrix(int row, int col) {
         for (int c = 0; c < col; c++) {
             // if non-zero element, pushback & valcount++
             cin >> input;
-            int value = atoi(input); // convert string to int
+            int value = atoi(input); // convert string to int. Code review on var 'input' type: char(x), int(o) will be easier.
             if (value != 0) 
                 m.list.push_back(Vertex(r, c, value));
         }
@@ -93,6 +93,20 @@ void Matrix::print() {
         cout << v.row << " " << v.col << " " << v.value << endl;
 }
 
+void Matrix::prettyPrint() {
+    int current_pointer = 0;
+    for (int r = 0; r < this->row_count; r++) {
+        for (int c = 0; c < this->col_count; c++) {
+            // if elem exists in 'list' means non-zero value
+            if (this->list[current_pointer].row == r && this->list[current_pointer].col == c)
+                cout << this->list[current_pointer++].value << " "; // print vertex's value, and ++ pointer
+            else
+                cout << "0 "; // vertex's value is 0
+        }
+        cout << endl;
+    }
+}
+
 Matrix Matrix::lazyTranspose() {
     // init transpose matrix's header
     Matrix trans(this->col_count, this->row_count);
@@ -109,7 +123,24 @@ Matrix Matrix::lazyTranspose() {
     return trans;
 }
 
+/*Test Set 1
+3 3
+3 4 0
+0 3 2
+2 0 4
+3 3
+0 0 0
+0 1 0
+0 0 0
 
+ANS 1
+0 1 4  <-- 0列1行，值為4
+1 1 3  <-- 1列1行，值為3
+---
+0	4	0
+0	3	0
+0	0	0
+*/
 
 // 執行程式: Ctrl + F5 或 [偵錯] > [啟動但不偵錯] 功能表
 // 偵錯程式: F5 或 [偵錯] > [啟動偵錯] 功能表
