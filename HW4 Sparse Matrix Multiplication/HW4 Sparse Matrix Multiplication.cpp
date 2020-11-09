@@ -112,15 +112,20 @@ Matrix Matrix::lazyTranspose() {
     Matrix trans(this->col_count, this->row_count);
     trans.val_count = this->val_count;
 
-    // swap its row & col 
+    // Exchange every row & col 
     for (auto v : this->list) {
         Vertex newv(v.col, v.row, v.value); // swap
         trans.list.push_back(newv);
     }
 
-    // sort by row then col, make sure it's row major order
+    // sort by row then col, make sure it's row major order. O(nlogn)
     std::sort(trans.list.begin(), trans.list.end());
     return trans;
+}
+
+Matrix Matrix::multiplication(Matrix another) {
+    Matrix* result;
+    return *result;
 }
 
 /*Test Set 1
