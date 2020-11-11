@@ -36,8 +36,10 @@ public:
     // T-transform, as row major order. Return result.
     Matrix lazyTranspose();
     Matrix fastTranspose(); 
-    // Perform matrix multiplication algorithm. Return result.
+    // Perform matrix multiplication algorithm. Return result. (this = A, another = B)
     Matrix multiplication(Matrix another);
+    // Pushback a vertex to list, valcount++ either.
+    void storeSum(Vertex v);
     // Print matrix's non-zero elements only.
     void print(); 
     // Print in n*m matrix format.
@@ -46,6 +48,15 @@ public:
 
 // Abstract the matrix's non-zero elements. Row major.
 Matrix ParseInputMatrix(int row, int col); 
+
+//Compare two int value, if former is smaller then return -1.
+int compare(int a, int b) {
+    if (a < b)
+        return -1;
+    else if (a == b)
+        return 0;
+    return 1;
+}
 
 int main()
 {
@@ -107,6 +118,13 @@ void Matrix::prettyPrint() {
     }
 }
 
+void Matrix::storeSum(Vertex v) {
+    if (v.value == 0) 
+        return;
+    this->list.push_back(v);
+    this->val_count = this->list.size();
+}
+
 Matrix Matrix::lazyTranspose() {
     // init transpose matrix's header
     Matrix trans(this->col_count, this->row_count);
@@ -124,7 +142,50 @@ Matrix Matrix::lazyTranspose() {
 }
 
 Matrix Matrix::multiplication(Matrix another) {
-    Matrix* result;
+    Matrix* result = new Matrix(this->row_count, another.col_count);
+    // Check can mutiply ?
+    if (this->col_count != another.row_count) {
+        cout << "Incompatible matrices" << endl;
+        return *result;
+    }
+    // repalce another one with its transpose
+    another = another.lazyTranspose();
+    // need to pushback a dummy vertex? Yes!
+    // ...
+
+    int sum = 0, rowBegin = 0;
+    int currentRow = this->list[0].row; // Current calculating row number of result matrix
+    int currentCol = another.list[0].row; // Current calculating col number of result matrix
+    for (int i = 0; i < this->val_count; ) { // "i" is index of vector in "this", increase manually
+        for (int j = 0; j < another.val_count; ) { // "j" is index of vector in "another", increase manually
+            if (this->list[i].row != currentRow) { 
+                // Row number == currentRow in matrix "this" ends, go on next row. WTF is this comment ?!
+                storeSum(Vertex(currentRow, currentCol, sum));
+                i = rowBegin;
+                for (; another.list[j].row == currentCol; j++)
+                    ;
+                currentCol = another.list[j].row;
+            }
+            else if (another.list[j].row != currentCol) {
+                storeSum(Vertex(currentRow, currentCol, sum));
+                i = rowBegin;
+                currentCol = another.list[j].row;
+            }
+            else switch (compare(this->list[i].col, another.list[j].col)) {
+            case -1: // A doen't has corresponding column, advance next term on A
+                i++; break;
+            case 0: // Has corresponding vertex, mutiply them
+                sum += (this->list[i++].value * another.list[j++].value); break;
+            case 1: // A doen't has corresponding column, advance next term on A
+                j++; break;
+            }
+        } // end of for loop(B)
+        // Find next row of A/this
+        for (; this->list[i].row == currentRow; )
+            ;
+        rowBegin = i;
+        currentRow = this->list[i].row;
+    } // end of for loop(A)
     return *result;
 }
 
