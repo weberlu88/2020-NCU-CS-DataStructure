@@ -36,8 +36,10 @@ public:
     // T-transform, as row major order. Return result.
     Matrix lazyTranspose();
     Matrix fastTranspose(); 
-    // Perform matrix multiplication algorithm. Return result.
+    // Perform matrix multiplication algorithm. Return result. (this = A, another = B)
     Matrix multiplication(Matrix another);
+    // Pushback a vertex to list, valcount++ either.
+    void storeSum(Vertex v);
     // Print matrix's non-zero elements only.
     void print(); 
     // Print in n*m matrix format.
@@ -47,22 +49,31 @@ public:
 // Abstract the matrix's non-zero elements. Row major.
 Matrix ParseInputMatrix(int row, int col); 
 
+//Compare two int value, if former is smaller then return -1.
+int compare(int a, int b) {
+    if (a < b)
+        return -1;
+    else if (a == b)
+        return 0;
+    return 1;
+}
+
 int main()
 {
     int row = 0, col = 0;
     cin >> row >> col;
     Matrix m1 = ParseInputMatrix(row, col);
 
-   // cin >> row >> col;
-   // Matrix m2 = ParseInputMatrix(row, col);
+   cin >> row >> col;
+   Matrix m2 = ParseInputMatrix(row, col);
 
     // testing T-transpose
-    Matrix trans = m1.lazyTranspose();
-    cout << "\n";
-    trans.print();
+    // Matrix trans = m1.lazyTranspose();
+    // cout << "\n";
+    // trans.prettyPrint();
 
-    // Matrix result = m1.multiplication(m2);
-    // result.print();
+    Matrix result = m1.multiplication(m2);
+    result.print();
 }
 
 Matrix ParseInputMatrix(int row, int col) {
@@ -72,7 +83,7 @@ Matrix ParseInputMatrix(int row, int col) {
         for (int c = 0; c < col; c++) {
             // if non-zero element, pushback & valcount++
             cin >> input;
-            int value = atoi(input); // convert string to int
+            int value = atoi(input); // convert string to int. Code review on var 'input' type: char(x), int(o) will be easier.
             if (value != 0) 
                 m.list.push_back(Vertex(r, c, value));
         }
@@ -93,23 +104,131 @@ void Matrix::print() {
         cout << v.row << " " << v.col << " " << v.value << endl;
 }
 
+void Matrix::prettyPrint() {
+    int current_pointer = 0;
+    for (int r = 0; r < this->row_count; r++) {
+        for (int c = 0; c < this->col_count; c++) {
+            // if elem exists in 'list' means non-zero value
+            if (this->list[current_pointer].row == r && this->list[current_pointer].col == c)
+                cout << this->list[current_pointer++].value << " "; // print vertex's value, and ++ pointer
+            else
+                cout << "0 "; // vertex's value is 0
+        }
+        cout << endl;
+    }
+}
+
+void Matrix::storeSum(Vertex v) {
+    if (v.value == 0) 
+        return;
+    this->list.push_back(v);
+    this->val_count = this->list.size();
+}
+
 Matrix Matrix::lazyTranspose() {
     // init transpose matrix's header
     Matrix trans(this->col_count, this->row_count);
     trans.val_count = this->val_count;
 
-    // swap its row & col 
+    // Exchange every row & col 
     for (auto v : this->list) {
         Vertex newv(v.col, v.row, v.value); // swap
         trans.list.push_back(newv);
     }
 
-    // sort by row then col, make sure it's row major order
+    // sort by row then col, make sure it's row major order. O(nlogn)
     std::sort(trans.list.begin(), trans.list.end());
     return trans;
 }
 
+Matrix Matrix::multiplication(Matrix another) {
+    Matrix result(this->row_count, another.col_count);
+    // Check can mutiply ?
+    if (this->col_count != another.row_count) {
+        cout << "Incompatible matrices" << endl;
+        return result;
+    }
+    // repalce another one with its transpose
+    another = another.lazyTranspose();
+    // need to pushback a dummy vertex as boundary condition? Yes! (Do not change valcount)
+    this->list.push_back(Vertex(this->row_count, -1, 0)); // A
+    another.list.push_back(Vertex(another.row_count, -1, 0)); // B
 
+    int sum = 0, rowBegin = 0;
+    int currentRow = this->list[0].row; // Current calculating row number of result matrix
+    int currentCol = another.list[0].row; // Current calculating col number of result matrix
+    for (int i = 0; i < this->val_count; ) { // "i" is index of vector in "this", increase manually
+        currentCol = another.list[0].row;
+        for (int j = 0; j < another.val_count+1; ) { // "j" is index of vector in "another", increase manually
+            if (this->list[i].row != currentRow) { 
+                // Row number == currentRow in matrix "this" ends, go on next row. WTF is this comment ?!
+                result.storeSum(Vertex(currentRow, currentCol, sum));\
+                sum = 0;
+                i = rowBegin;
+                for (; another.list[j].row == currentCol; j++)
+                    ;
+                currentCol = another.list[j].row;
+            }
+            else if (another.list[j].row != currentCol) {
+                result.storeSum(Vertex(currentRow, currentCol, sum));
+                sum = 0;
+                i = rowBegin;
+                currentCol = another.list[j].row;
+            }
+            else switch (compare(this->list[i].col, another.list[j].col)) {
+            case -1: // A doen't has corresponding column, advance next term on A
+                i++; break;
+            case 0: // Has corresponding vertex, mutiply them
+                sum += (this->list[i++].value * another.list[j++].value); break;
+            case 1: // A doen't has corresponding column, advance next term on A
+                j++; break;
+            }
+        } // end of for loop(B)
+        // Find next row number of A/this, reset rowBegin & currentRow
+        for (; this->list[i].row == currentRow; i++)
+            ;
+        rowBegin = i;
+        currentRow = this->list[i].row;
+    } // end of for loop(A)
+    return result;
+}
+
+/*Test Set 1
+3 3
+3 4 0
+0 3 2
+2 0 4
+3 3
+0 0 0
+0 1 0
+0 0 0
+
+ANS 1
+0 1 4  <-- 0列1行，值為4
+1 1 3  <-- 1列1行，值為3
+---
+0	4	0
+0	3	0
+0	0	0
+==============
+Test Set 2
+2 3
+1 0 2
+-1 4 6
+3 3
+3 0 2
+-1 0 0
+0 0 5
+
+ANS 2
+0 0 3
+0 2 12
+1 0 -7
+1 2 28
+---
+3 0 12
+-7 0 28
+*/
 
 // 執行程式: Ctrl + F5 或 [偵錯] > [啟動但不偵錯] 功能表
 // 偵錯程式: F5 或 [偵錯] > [啟動偵錯] 功能表
