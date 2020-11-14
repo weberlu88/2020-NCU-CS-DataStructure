@@ -30,6 +30,8 @@ public:
     static void concatenate(LinkList* a, LinkList* b);
 };
 
+void ParseCommand();
+
 int main()
 {
     LinkList list;
@@ -112,6 +114,7 @@ void LinkList::insert(int index, int value) {
         catch (std::exception& e) {
             cout << e.what() << endl; // Problem requires: error message + original list
             this->print();
+            return;
         }
         // inserting a node 'newn' after node 'target'
         newn->next = target->next;
@@ -145,6 +148,7 @@ int LinkList::deleteById(int index) {
     catch (std::exception& e) {
         cout << e.what() << endl; // Problem requires: error message + original list
         this->print();
+        return;
     }
 
     // Perform deletion, if only 1 elem then goes in 1st & 2nd if()
@@ -164,7 +168,7 @@ int LinkList::deleteById(int index) {
 
 void LinkList::reverse() {
     // https://www.geeksforgeeks.org/reverse-a-linked-list/
-    node* newhead = this->tail, *newtail = this->head;
+    node* newhead = this->tail, *newtail = this->head; // Stores original head & tail
     node* lead = head, *middle, *trail = head; // Needs 3 pointers
     middle = NULL;
     while (lead) {
