@@ -35,13 +35,27 @@ void ParseCommand();
 int main()
 {
     LinkList list;
+    list.pushBack(10);
+    list.print();
+    list.insert(5, 6);
+    list.print();
+    list.insert(0, 6);
+    list.print();
+    
+    list.reverse();
+    list.print();
     list.pushBack(1);
-    list.pushBack(2);
+    list.print();
+    list.reverse();
+    list.print();
     list.pushBack(3);
     list.print();
-    list.insert(3, 999);
+    list.deleteById(2);
     list.print();
-    list.deleteById(3);
+    list.deleteById(5);
+    list.print();
+
+    list.insert(3, 11);
     list.print();
     list.reverse();
     list.print();
@@ -112,8 +126,7 @@ void LinkList::insert(int index, int value) {
                     target = target->next;
         }
         catch (std::exception& e) {
-            cout << e.what() << endl; // Problem requires: error message + original list
-            this->print();
+            cout << e.what() << endl; // Problem requires: error message
             return;
         }
         // inserting a node 'newn' after node 'target'
@@ -146,9 +159,8 @@ int LinkList::deleteById(int index) {
         }
     }
     catch (std::exception& e) {
-        cout << e.what() << endl; // Problem requires: error message + original list
-        this->print();
-        return;
+        cout << e.what() << endl; // Problem requires: error message
+        return -1;
     }
 
     // Perform deletion, if only 1 elem then goes in 1st & 2nd if()
