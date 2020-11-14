@@ -24,7 +24,7 @@ public:
     // Insert element at given position, throw error messege while index out of bound (first elem's index is 1)
     void insert(int index, int value);
     // Delete element at given position, throw error messege while index out of bound (first elem's index is 1)
-    void deleteById(int index);
+    int deleteById(int index);
     // Invert the whole linklist
     void reverse();
     static void concatenate(LinkList* a, LinkList* b);
@@ -36,7 +36,10 @@ int main()
     list.pushBack(1);
     list.pushBack(2);
     list.pushBack(3);
+    list.print();
     list.insert(3, 999);
+    list.print();
+    list.deleteById(3);
     list.print();
 }
 
@@ -51,6 +54,7 @@ void LinkList::print() {
         cout << current->data << " ";
         current = current->next;
     }
+    cout << endl;
 }
 
 int LinkList::size() {
@@ -116,6 +120,46 @@ void LinkList::insert(int index, int value) {
     }
 }
 
+int LinkList::deleteById(int index) {
+    // index = 0 or n+1 --> illegal 
+    // index = 1 --> delete first node 
+    // index = n --> delete last node 
+    // else        --> delete middle node 
+    node* target = head, *trail = head; // Point 'target' to the deleting node, 'trail' to the former node
+    int data;
+    try {
+        int length = this->size(); // O(n)
+        if (index > length || index == 0)
+            throw std::out_of_range("Index is out of range!!");
+        else {
+            for (int count = 2; count <= index; count++) {
+                trail = target;
+                target = target->next;
+            }
+            data = target->data;
+            // cout << "Item to delete " << target->data << endl;
+        }
+    }
+    catch (std::exception& e) {
+        cout << e.what() << endl; // Problem requires: error message + original list
+        this->print();
+    }
+
+    // Perform deletion, if only 1 elem then goes in 1st & 2nd if()
+    if (target == head) {
+        head = head->next;
+    }
+    if (target == tail) {
+        tail = trail; // trail is the last element
+    }
+    if (target != head && target != tail) {
+        trail->next = target->next;
+    }
+    delete target; //freed memory
+    target = NULL; //pointed dangling ptr to NULL
+    return data;
+}
+
 /* Test Set 01
 ADD 5
 ADD 10
@@ -135,6 +179,35 @@ REVERSE
 Index is out of range!!
 5 11 10
 10 11 5*/
+
+/* Test Set 02
+ADD 10
+INSERT 6 BEHIND 5
+INSERT 6 BEHIND 0
+REVERSE
+ADD 1
+REVERSE
+ADD 3
+DELETE 2
+DELETE 5
+INSERT 11 BEHIND 3
+REVERSE
+*/
+
+/* Ans 02
+10
+Index is out of range!!
+10
+6 10
+10 6
+10 6 1
+1 6 10
+1 6 10 3
+1 10 3
+Index is out of range!!
+1 10 3
+1 10 3 11
+11 3 10 1*/
 
 // 執行程式: Ctrl + F5 或 [偵錯] > [啟動但不偵錯] 功能表
 // 偵錯程式: F5 或 [偵錯] > [啟動偵錯] 功能表
