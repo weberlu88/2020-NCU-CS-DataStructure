@@ -36,7 +36,7 @@ int main()
     list.pushBack(1);
     list.pushBack(2);
     list.pushBack(3);
-    list.insert(4, 999);
+    list.insert(3, 999);
     list.print();
 }
 
@@ -86,6 +86,8 @@ void LinkList::insert(int index, int value) {
         newn->data = value;
         newn->next = head; // new node point to the origin head node
         head = newn;
+        if (tail == NULL)
+            tail = newn; // if list is empty before insert, new node is first & last node
     }
     else {
         // newn is the new node, insert after target node
@@ -108,6 +110,9 @@ void LinkList::insert(int index, int value) {
         // inserting a node 'newn' after node 'target'
         newn->next = target->next;
         target->next = newn;
+        // if insert at last, move tail to newm
+        while (tail->next)
+            tail = tail->next;
     }
 }
 
