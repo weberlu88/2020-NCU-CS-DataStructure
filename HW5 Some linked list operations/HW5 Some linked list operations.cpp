@@ -41,6 +41,8 @@ int main()
     list.print();
     list.deleteById(3);
     list.print();
+    list.reverse();
+    list.print();
 }
 
 LinkList::LinkList() {
@@ -48,7 +50,7 @@ LinkList::LinkList() {
     tail = NULL;
 }
 
-void LinkList::print() {
+void LinkList::print() { // for ( ; ptr; ptr = ptr->link) is PPT's method
     node* current = this->head;
     while (current) {
         cout << current->data << " ";
@@ -126,7 +128,7 @@ int LinkList::deleteById(int index) {
     // index = n --> delete last node 
     // else        --> delete middle node 
     node* target = head, *trail = head; // Point 'target' to the deleting node, 'trail' to the former node
-    int data;
+    int data = -1;
     try {
         int length = this->size(); // O(n)
         if (index > length || index == 0)
@@ -158,6 +160,21 @@ int LinkList::deleteById(int index) {
     delete target; //freed memory
     target = NULL; //pointed dangling ptr to NULL
     return data;
+}
+
+void LinkList::reverse() {
+    // https://www.geeksforgeeks.org/reverse-a-linked-list/
+    node* newhead = this->tail, *newtail = this->head;
+    node* lead = head, *middle, *trail = head; // Needs 3 pointers
+    middle = NULL;
+    while (lead) {
+        trail = middle;
+        middle = lead;
+        lead = lead->next;
+        middle->next = trail;
+    }
+    this->head = newhead;
+    this->tail = newtail;
 }
 
 /* Test Set 01
