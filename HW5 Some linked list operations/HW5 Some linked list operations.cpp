@@ -1,7 +1,9 @@
 ﻿// HW5 Some linked list operations.cpp : 此檔案包含 'main' 函式。程式會於該處開始執行及結束執行。
-//
+// @Author: MIS Senior - Weber Lu
 
 #include <iostream>
+#include <string> // std::string, std::stoi
+#include <regex> // std::regex, std::smatch, std::regex_match
 using namespace std;
 
 struct node{
@@ -30,11 +32,45 @@ public:
     static void concatenate(LinkList* a, LinkList* b);
 };
 
-void ParseCommand();
-
 int main()
 {
     LinkList list;
+    string command; // input string
+
+    const regex REGEX_ADD("^ADD\\s([0-9]+)$"); /* ADD 90 */
+    const regex REGEX_INSERT("^INSERT\\s([0-9]+)\\sBEHIND\\s([0-9]+)$"); /* INSERT 11 BEHIND 1 */
+    const regex REGEX_DELETE("^DELETE\\s([0-9]+)$"); /* DELETE 4 */
+    const regex REGEX_REVERSE("^REVERSE$"); /* REVERSE */
+    smatch match;
+
+    do {
+        getline(std::cin, command);
+        if (regex_match(command, match, REGEX_ADD)) { 
+            ssub_match sub_match = match[1]; // abstract the value to insert, match[0] is original string
+            int value = stoi(sub_match.str());
+            list.pushBack(value); // perform operation 'pushBack'
+        }
+        else if (regex_match(command, match, REGEX_INSERT)) { 
+            // perform operation 'insert'
+            int value = stoi(match[1].str());
+            int index = stoi(match[2].str());
+            list.insert(index, value);
+        }
+        else if (regex_match(command, match, REGEX_DELETE)) { 
+            // perform operation 'deleteById'
+            int index = stoi(match[1].str());
+            list.deleteById(index);
+        }
+        else if (command.find("REVERSE") == 0) { 
+            // perform operation 'reverse'
+            list.reverse();
+        }
+        // print whole list after every command line
+        if (!command.empty())
+            list.print();
+    } while (!command.empty());
+
+    /*
     list.pushBack(10);
     list.print();
     list.insert(5, 6);
@@ -58,7 +94,7 @@ int main()
     list.insert(3, 11);
     list.print();
     list.reverse();
-    list.print();
+    list.print();*/
 }
 
 LinkList::LinkList() {
@@ -68,11 +104,14 @@ LinkList::LinkList() {
 
 void LinkList::print() { // for ( ; ptr; ptr = ptr->link) is PPT's method
     node* current = this->head;
+    string result("");
     while (current) {
-        cout << current->data << " ";
+        result += to_string(current->data);
+        result += ' ';
         current = current->next;
     }
-    cout << endl;
+    result.pop_back(); // remove last character ' ' with O(1) (white space)
+    cout << result << endl;
 }
 
 int LinkList::size() {
