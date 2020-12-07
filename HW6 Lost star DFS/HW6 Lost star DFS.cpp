@@ -3,7 +3,9 @@
 // Range-based for loop on a dynamic array https://stackoverflow.com/questions/15904896/range-based-for-loop-on-a-dynamic-array/15919834#15919834
 
 #include <iostream>
+#include <iterator>
 #include <vector>
+#include <set>
 using namespace std;
 /* wrap range of dynamic array in a std::pair and overload begin() and end() */
 namespace std {
@@ -21,12 +23,18 @@ class Graph {
 private:
     bool** adjMatrix; // Adjacency Matrix representation in C++, which size is numVertices*numVertices 
     bool* visited; // An array marks visited vertex as 'true'
+    set<int, greater<int> > vertices; // An unique set stores index of vertex from the graph
     int numVertices, width, height;
 
 public:
+    int dfs_count = 0; // Times of DFS preforms 
     // Initialize the matrix to zero
     Graph(int width, int height);
 
+    // Insert vertex
+    void addVertex(int index);
+    // Get all vertex
+    set<int, greater<int> > getVertices();
     // Add edges
     void addEdge(int i, int j);
     // Remove edges
@@ -34,7 +42,7 @@ public:
     // Print the martix
     void toString();
     // DFS algorithm
-    void DFS(int vertex); // still has buggggggggggggggg
+    void DFS(int vertex);
     // De-Constructor
     //~Graph();
 };
@@ -51,7 +59,17 @@ int main()
     //g.addEdge(1, 2);
     g.toString();
 
-    g.DFS(18);
+    int lost_stars = 0;
+    set<int, greater<int> > vertices = g.getVertices();
+    set<int, greater<int> >::iterator itr;
+    for (itr = vertices.begin(); itr != vertices.end(); ++itr) {
+        g.DFS(*itr);
+        if (g.dfs_count == 1) // If connected component size == 1 -> lost stars 
+            lost_stars++;
+        cout << "dfs count: " << g.dfs_count << endl;
+        g.dfs_count = 0; // clear the counting before calculating next connected component
+    }
+    cout << "lost_stars: " << lost_stars << endl;
 }
 
 Graph::Graph(int width, int height) {
@@ -73,6 +91,14 @@ Graph::Graph(int width, int height) {
     }
 }
 
+void  Graph::addVertex(int index) {
+    vertices.insert(index);
+}
+
+set<int, greater<int> > Graph::getVertices() {
+    return vertices;
+}
+
 void Graph::addEdge(int i, int j) {
     adjMatrix[i][j] = true;
     adjMatrix[j][i] = true;
@@ -84,6 +110,7 @@ void Graph::removeEdge(int i, int j) {
 }
 
 void Graph::toString() {
+    cout << "Adjacency Matrix:" << "\n";
     for (int i = 0; i < numVertices; i++) {
         cout << i << " : ";
         for (int j = 0; j < numVertices; j++)
@@ -93,14 +120,22 @@ void Graph::toString() {
 }
 
 void Graph::DFS(int vertex) {
+    if (visited[vertex]) // Check if visited, if yes do not preceed dfs
+        return;
+    dfs_count++; // Add count by 1 in every recursive call
     visited[vertex] = true;
     bool* adjArray = adjMatrix[vertex];
 
     cout << vertex << " ";
 
-    for (auto&& i : std::make_pair(adjArray, adjArray + numVertices))
-        if (!visited[i])
+    for (int i = 0; i < numVertices; i++) //traverse the neighbor of vertex
+        if (adjArray[i] && !visited[i]) // connected & not visited
+            DFS(i); // continue dfs on neighbor
+    /*
+    for (auto&& i : std::make_pair(adjArray, adjArray + numVertices)) // range-base forloop cant access index of array
+        if (i && !visited[i]) 
             DFS(i);
+    */
 }
 
 /*
@@ -154,6 +189,7 @@ Graph parseString(int width, int height) {
             //cout << index;
             if (maze[index]) {
                 //If vertix, Check the 8 neighbors is connected or not, then create its edges
+                g.addVertex((row - 1) * (width)+(col - 1)); // insert the index of vertex into set ('index' equal to 'src')
                 for (auto move : moves) {
                     next_row = row + move.vert;
                     next_col = col + move.horiz;
@@ -171,6 +207,93 @@ Graph parseString(int width, int height) {
 
     return g;
 }
+
+/*
+* Test Case 01:
+------------------
+7 5
+.*...
+*....
+..*.*
+...*.
+.....
+.**.*
+..*..
+6 6
+...*..
+*...**
+*....*
+*.****
+..*...
+*.*...
+2 4
+*..*
+....
+0 0
+------------------
+Ans 01
+1
+1
+2
+*/
+
+/*
+* Test Case 02:
+------------------
+48 76
+**.**..*.***.....*...........*..*..**....*.*...*..........**.....**...*..*.*
+*.*.*......**.*...*..*****.*.*....**.**......**.*...***...**.....*.........*
+......*..*.*..*.....**...*......*...........*****.*.*..*..........*...*...**
+*.*...*.*.*........*.*....*...*.....*.....**.**....*..**......*...*....**..*
+..***.....*.*.**..*......*.**.........*.*.*...........*.*.*.......**.......*
+*.*....**.*...**.*.*....*...*..*.....*.*.*.*..*....**..*.......*.****.*..*..
+*..*........*..*.*...*....*...*....*..*....*.........*....*.*...*....**....*
+..*...**.*.*.**.....*....*..*........*.......**....**..*.*..***.*.*....*...*
+*.*..*.**...*.*.**.**....*...*....**...*...*..*.....*....*...*....**.**.....
+**.**..**.*...*..**..*.......*........**.*.*.*..*.*...*.....**..............
+*....**....*.....*.....*.*..*.....*..*...*.*.....*.*.***..*.**.*....*....**.
+..*......*.*...**.......*****.*..**..*....*..*.........*.**..*..*...*.......
+.....*.*........**.*...*****.**.*.....*......**....*..*.....*....*.........*
+...*.*...*.*.........***......**......*.........*......**..*.....**.***.*.*.
+**...*..*..*.*...***....***...*.*..*...*....*.*..*..**...***...**.**..*.....
+.*.*.........*.*..*.........**..........*.*.....*.......*.**.**.*.*.*.*.....
+...*.*....**....*.*.......**..*..***....*.****.....****..................*..
+..*..*....*.*.......*.....*.*...*.*.*.....*........****.....*.......**...*..
+*...*.**..*.*.*.**.*..*....*.*...**........**..**....*.....*........*..***..
+*.*....*.......*.....**..*.**.....**.........*..**.....*.*....*******..*.*..
+..**.*...****..***...*....*.*..*.**....*....*....*.......*.*..*.....***.....
+*...**......**..*..**..*.*.*.....*...**......***.*.*..*......*..*..*.**..*.*
+..*........*.....*..**.......*...*...*.***.....***.......*..*.***....*......
+...*.*.....***..**...****...*.....*.....****.**..*.....*..*...*..**..*.....*
+......*...*........*.....*.*.**...**.**...*.....*...**.*.*.......*****......
+.....**.............**....****.*.*......*.*..*...*...**....*.....*.*.*..**.*
+....*...*..*.*..*...........***.*.*.**....*.*........*.....**..........**...
+...*.**.....*.....*.*...**...***.*.*..*.*.*.............***..........*..**.*
+..*.....*...*..**..*......**.*..*.**.*...**..*..*.*.*.*..**.**.**.***.*...*.
+*....*.**..*.....*...*..........*.***....*...***.*.*..*....**.......*...*...
+.*.**.*.*.*.......*...*...**....*...*......*..*...*...*..*..*....**.*..***..
+.**.......**...*.***...*....*..*.*.***..........**..**.**....**...*.........
+....***...*.***.**.***.....****...*..*.*.*..*****.*...**..*...**....*.....*.
+.*.*....**..**.....**..*.*..**.**.*..**...*.....**.*.**......*..*..*..*.*...
+.*....**.*....*..***..*....*....*..*...*.*..*.*...*.**....***....**....*...*
+..*......*..........*..*..**..................****..**...........*.....*.*..
+..*..*.......*..*....*....*.*....**....*.**.*.***.*...*......**.......*..***
+...*.**....*.*..*..*.*.....**.*..*....*.*...*.*..........*..**.....*.*......
+.****..*....**.*..**......*....*.**.*..**.....*.*..*.......*.....***.**.*..*
+**.....*..*........*.*.*.*.......*.*.*...*..........****.....**.......*..*..
+.**..*............**........*..*.***...****......****..*.....*.***..*.**.*..
+**..*.*...*.*.......*....*...**.*..*.....*.*......****......*......*..*.**..
+*.*.*...**.*.....*.....*.....*.*.*..*...**..*.......*..*...*...*.....*.....*
+....*................*..*.*...*.*.....*..*..*..**.*..*.**....*.**.*...*...*.
+..*......*.**...**.*...*.....**.**..*..*..........*.*....***.*........**.*..
+....*....*..*.*.***.**......*.***...**.......*......*.*...*..***....**.*...*
+*.*.**...*.**.*......****.*.....**..*..**...**.*.......*..*.*............*.*
+*.**............*......*.**...........*..*..*.*...**.*.**......*....*....*..
+0 0
+------------------
+Ans 02
+64
+*/
 
 // 執行程式: Ctrl + F5 或 [偵錯] > [啟動但不偵錯] 功能表
 // 偵錯程式: F5 或 [偵錯] > [啟動偵錯] 功能表
