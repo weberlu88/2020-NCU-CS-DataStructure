@@ -1,13 +1,14 @@
 ﻿// HW6 Lost star DFS.cpp : 此檔案包含 'main' 函式。程式會於該處開始執行及結束執行。
 // Debug dynamic array https://docs.microsoft.com/en-us/troubleshoot/cpp/expand-pointer-%20debugger-watch-window
 // Range-based for loop on a dynamic array https://stackoverflow.com/questions/15904896/range-based-for-loop-on-a-dynamic-array/15919834#15919834
+// @Author: MIS Senior - Weber Lu
 
 #include <iostream>
 #include <iterator>
 #include <vector>
 #include <set>
 using namespace std;
-/* wrap range of dynamic array in a std::pair and overload begin() and end() */
+/* wrap range of dynamic array in a std::pair and overload begin() and end() */ // No use now
 namespace std {
     template <typename T> T* begin(std::pair<T*, T*> const& p)
     {
@@ -51,7 +52,33 @@ public:
 Graph parseString(int width, int height);
 
 int main()
-{
+{  
+    /* Handle muti-inputs */
+    int width, height;
+    int lost_stars;
+    while (true) {
+        lost_stars = 0;
+        cin >> height >> width;
+        if (width == 0 && height == 0)
+            break;
+
+        // Graph is a forest, perform dfs over every tree, find amount of tree size = 0
+        Graph g = parseString(width, height);
+        set<int, greater<int> > vertices = g.getVertices();
+        set<int, greater<int> >::iterator itr;
+        for (itr = vertices.begin(); itr != vertices.end(); ++itr) { // iter every unvisited vertex, if visited then return wont perform dfs
+            g.DFS(*itr);
+            if (g.dfs_count == 1) // If connected component size == 1 -> lost stars++ 
+                lost_stars++;
+            // cout << "dfs count: " << g.dfs_count << endl;
+            g.dfs_count = 0; // clear the counting before calculating next connected component
+        }
+        // cout << "lost_stars: " << lost_stars << endl;
+        cout << lost_stars << endl;
+    } 
+
+    /*
+    * Handle One Input
     int width, height;
     cin >> height >> width;
     //Graph g(width, height);
@@ -70,6 +97,7 @@ int main()
         g.dfs_count = 0; // clear the counting before calculating next connected component
     }
     cout << "lost_stars: " << lost_stars << endl;
+    */
 }
 
 Graph::Graph(int width, int height) {
@@ -126,7 +154,7 @@ void Graph::DFS(int vertex) {
     visited[vertex] = true;
     bool* adjArray = adjMatrix[vertex];
 
-    cout << vertex << " ";
+    // cout << vertex << " "; // print the current visiting vertex
 
     for (int i = 0; i < numVertices; i++) //traverse the neighbor of vertex
         if (adjArray[i] && !visited[i]) // connected & not visited
@@ -198,7 +226,7 @@ Graph parseString(int width, int height) {
                         src = (row - 1) * (width)+(col - 1);
                         dest = (next_row - 1) * (width)+(next_col - 1);
                         g.addEdge(src, dest);
-                        cout << src << "->" << dest << endl;
+                        // cout << src << "->" << dest << endl;
                     }
                 }
             }
