@@ -88,9 +88,9 @@ int main()
             root->createLeaf(left, right);
         }
         else {
-            node* find = root->search(target);
+            node* find = root->search(target); // search for *node with value == target
             if (find)
-                find->createLeaf(left, right);
+                find->createLeaf(left, right); // create childs via ptr *node
                 // cout << find->val;
             else {
                 cout << INVALID_TREE;
