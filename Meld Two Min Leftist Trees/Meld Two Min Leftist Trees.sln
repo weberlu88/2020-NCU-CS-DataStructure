@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30413.136
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Meld Two Min Leftist Trees", "Meld Two Min Leftist Trees.vcxproj", "{D5EE9E16-EFE6-4814-A5FD-2E6A38FDC909}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D5EE9E16-EFE6-4814-A5FD-2E6A38FDC909}.Debug|x64.ActiveCfg = Debug|x64
+		{D5EE9E16-EFE6-4814-A5FD-2E6A38FDC909}.Debug|x64.Build.0 = Debug|x64
+		{D5EE9E16-EFE6-4814-A5FD-2E6A38FDC909}.Debug|x86.ActiveCfg = Debug|Win32
+		{D5EE9E16-EFE6-4814-A5FD-2E6A38FDC909}.Debug|x86.Build.0 = Debug|Win32
+		{D5EE9E16-EFE6-4814-A5FD-2E6A38FDC909}.Release|x64.ActiveCfg = Release|x64
+		{D5EE9E16-EFE6-4814-A5FD-2E6A38FDC909}.Release|x64.Build.0 = Release|x64
+		{D5EE9E16-EFE6-4814-A5FD-2E6A38FDC909}.Release|x86.ActiveCfg = Release|Win32
+		{D5EE9E16-EFE6-4814-A5FD-2E6A38FDC909}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0089ABFA-DFFD-43EB-AC5D-66FAF6D9307B}
+	EndGlobalSection
+EndGlobal
