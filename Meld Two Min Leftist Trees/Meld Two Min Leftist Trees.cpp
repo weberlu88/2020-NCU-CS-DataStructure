@@ -13,7 +13,8 @@ public:
     int element; // priority
     int dist; // s-value, shortest path from the root to an external node
     LeftistNode* leftChild, * rightChild; // leftchild & rightchild
-    LeftistNode(int& element, LeftistNode* lt = NULL, LeftistNode* rt = NULL, int np = 0){
+    LeftistNode(int& element, LeftistNode* lt = NULL, LeftistNode* rt = NULL, int np = 0)
+    {
         this->element = element;
         rightChild = rt;
         leftChild = lt,
@@ -108,18 +109,18 @@ int main()
     cin >> size1 >> size2;
 
     int priority;
-    string string1, string2;
+    vector<int> input1, input2;
     for (int i = 1; i <= size1; ++i) {
         cin >> priority;
-        string1 += priority;
+        input1.push_back(priority);
     }
     for (int i = 1; i <= size2; ++i) {
         cin >> priority;
-        string2 += priority;
+        input2.push_back(priority);
     }
 
-    cout << string1.size() << endl;
-    cout << string2.size() << endl;
+    cout << input1.size() << endl;
+    cout << input2.size() << endl;
 
     // LeftistHeap heap1;
     // LeftistHeap heap2;
