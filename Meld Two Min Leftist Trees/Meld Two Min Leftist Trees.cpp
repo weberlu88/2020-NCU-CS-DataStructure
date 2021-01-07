@@ -4,6 +4,7 @@
 // Merge Algorithm https://en.wikipedia.org/wiki/Leftist_tree
 
 #include <iostream>
+#include <algorithm>    // std::min max
 #include <vector>
 #include <string>
 using namespace std;
@@ -13,7 +14,7 @@ public:
     int element; // priority
     int dist; // s-value, shortest path from the root to an external node
     LeftistNode* leftChild, * rightChild; // leftchild & rightchild
-    LeftistNode(int& element, LeftistNode* lt = NULL, LeftistNode* rt = NULL, int np = 0)
+    LeftistNode(int element, LeftistNode* lt = NULL, LeftistNode* rt = NULL, int np = 0)
     {
         this->element = element;
         rightChild = rt;
@@ -49,7 +50,7 @@ public:
     // Construct empty leftist heap 
     LeftistHeap();
     // Construct the leftist heap with input array
-    LeftistHeap(vector<int> input);
+    LeftistHeap(vector<int> inputArr);
     // Copy constructor. 
     LeftistHeap(LeftistHeap& rhs);
     /* Merge rhs into the priority queue. rhs becomes empty. rhs must be different from this.*/
@@ -67,9 +68,41 @@ LeftistHeap::LeftistHeap()
 }
 
 // Construct the leftist heap with input array
-LeftistHeap::LeftistHeap(vector<int> input)
+LeftistHeap::LeftistHeap(vector<int> inputArr)
 {
     root = NULL;
+    items = inputArr;
+    capacity = size(items);
+
+    // init the Heap structure
+    int index, value; // pointing to current new node
+    if (!capacity) {
+
+        // Create the node
+        LeftistNode newNode(value);
+
+        // If the node has leftchild, create it
+        if (hasLeftChild(index)) 
+            newNode.leftChild = new LeftistNode(leftChild(index)); // must be recursive !!!!!!!!!!!!!!!!
+        else 
+            newNode.leftChild = NULL;
+
+        // If the node has rightchild, create it
+        if (hasRightChild(index)) 
+            newNode.rightChild = new LeftistNode(rightChild(index)); // must be recursive !!!!!!!!!!!!!!!!
+        else 
+            newNode.rightChild = NULL;
+
+        // Caculate its s-value
+        if (hasLeftChild(index) && hasRightChild(index))
+            newNode.dist = min(newNode.rightChild->dist, newNode.leftChild->dist) + 1;
+        else if (hasLeftChild(index))
+            newNode.dist = newNode.leftChild->dist + 1;
+        else if (hasRightChild(index))
+            newNode.dist = newNode.rightChild->dist + 1;
+        else
+            newNode.dist = 1;
+    }
     return;
 }
 
@@ -121,6 +154,10 @@ int main()
 
     cout << input1.size() << endl;
     cout << input2.size() << endl;
+
+    int val = 100;
+    LeftistNode newL(val);
+    LeftistNode newL(300);
 
     // LeftistHeap heap1;
     // LeftistHeap heap2;
