@@ -1,4 +1,5 @@
 ﻿// Meld Two Min Leftist Trees.cpp : 此檔案包含 'main' 函式。程式會於該處開始執行及結束執行。
+// @author: MIS Senior Weber Lu
 // Data Structure https://www.geeksforgeeks.org/leftist-tree-leftist-heap/
 // Parse Array-style Heap into Tree-style Heap https://www.youtube.com/watch?v=t0Cq6tVNRBA
 // Merge Algorithm https://en.wikipedia.org/wiki/Leftist_tree
@@ -7,6 +8,10 @@
 #include <algorithm>    // std::min max
 #include <vector>
 #include <string>
+#include <sstream>
+#include <iterator>
+#include <utility>
+
 using namespace std;
 
 class LeftistNode {
@@ -14,7 +19,7 @@ public:
     int element; // priority
     int dist; // s-value, shortest path from the root to an external node
     LeftistNode* leftChild, * rightChild; // leftchild & rightchild
-    LeftistNode(int element, LeftistNode* lt = NULL, LeftistNode* rt = NULL, int np = 0)
+    LeftistNode(int element, LeftistNode* lt = NULL, LeftistNode* rt = NULL, int np = 1)
     {
         this->element = element;
         rightChild = rt;
@@ -30,6 +35,8 @@ private:
     LeftistNode* Merge(LeftistNode* h1, LeftistNode* h2);
     // Internal method to swap node's two children. 
     void swapChildren(LeftistNode* t);
+    // Internal method to insert nodes in level order recursively
+    LeftistNode* insertLevelOrder(LeftistNode* root, int index, int value);
 
     /* Deal with Heap transformation between 'Array-style' & 'Tree-style'. */
     int capacity = 0;
@@ -38,8 +45,8 @@ private:
     int getLeftChildIndex(int parentIndex) { return parentIndex * 2 + 1; }
     int getParentIndex(int childIndex) { return (childIndex - 1) / 2; } // auto flooring
 
-    bool hasRightChild(int index) { return getRightChildIndex(index) > capacity; }
-    bool hasLeftChild(int index) { return getLeftChildIndex(index) > capacity; }
+    bool hasRightChild(int index) { return getRightChildIndex(index) < capacity; }
+    bool hasLeftChild(int index) { return getLeftChildIndex(index) < capacity; }
     bool hasParent(int index) { return getParentIndex(index) >= 0; }
 
     int rightChild(int index) { return items[getRightChildIndex(index)]; }
@@ -70,40 +77,42 @@ LeftistHeap::LeftistHeap()
 // Construct the leftist heap with input array
 LeftistHeap::LeftistHeap(vector<int> inputArr)
 {
-    root = NULL;
     items = inputArr;
-    capacity = size(items);
+    capacity = items.size();
 
-    // init the Heap structure
-    int index, value; // pointing to current new node
-    if (!capacity) {
-
-        // Create the node
-        LeftistNode newNode(value);
-
-        // If the node has leftchild, create it
-        if (hasLeftChild(index)) 
-            newNode.leftChild = new LeftistNode(leftChild(index)); // must be recursive !!!!!!!!!!!!!!!!
-        else 
-            newNode.leftChild = NULL;
-
-        // If the node has rightchild, create it
-        if (hasRightChild(index)) 
-            newNode.rightChild = new LeftistNode(rightChild(index)); // must be recursive !!!!!!!!!!!!!!!!
-        else 
-            newNode.rightChild = NULL;
-
-        // Caculate its s-value
-        if (hasLeftChild(index) && hasRightChild(index))
-            newNode.dist = min(newNode.rightChild->dist, newNode.leftChild->dist) + 1;
-        else if (hasLeftChild(index))
-            newNode.dist = newNode.leftChild->dist + 1;
-        else if (hasRightChild(index))
-            newNode.dist = newNode.rightChild->dist + 1;
-        else
-            newNode.dist = 1;
+    // Init the Heap structure
+    if (capacity)
+    {
+        // Create the root node, call insertLevelOrder() to complete the heap, calculate s-value as well
+        int index = 0, value = items[0];
+        root = insertLevelOrder(root, index, value);
     }
-    return;
+}
+
+// Internal method to insert nodes in level order recursively
+LeftistNode* LeftistHeap::insertLevelOrder(LeftistNode* root, int index, int value)
+{
+    // Recursively case for recursion
+    if (index < capacity) {
+
+        // create the node with NULL childs
+        LeftistNode* temp = new LeftistNode(value);
+        root = temp;
+
+        // insert left child, if the node has
+        if (hasLeftChild(index) && leftChild(index))
+            root->leftChild = insertLevelOrder(root->leftChild, getLeftChildIndex(index), leftChild(index));
+
+        // insert right child, if the node has
+        if (hasRightChild(index) && rightChild(index))
+            root->rightChild = insertLevelOrder(root->rightChild, getRightChildIndex(index), rightChild(index));
+
+        // calculate its s-value (Lheap's s-val right <= left)
+        if (hasRightChild(index) && rightChild(index))
+            root->dist = root->rightChild->dist + 1;
+    }
+    // Base case for recursion
+    return root;
 }
 
 // Copy constructor. 
@@ -140,37 +149,42 @@ int main()
 {
     int size1, size2;
     cin >> size1 >> size2;
+    cin.ignore(); // Ignore NEWLINE
 
     int priority;
-    vector<int> input1, input2;
-    for (int i = 1; i <= size1; ++i) {
-        cin >> priority;
-        input1.push_back(priority);
-    }
-    for (int i = 1; i <= size2; ++i) {
-        cin >> priority;
-        input2.push_back(priority);
-    }
+    //vector<int> element1, element2;
+    string line;
 
-    cout << input1.size() << endl;
-    cout << input2.size() << endl;
+    getline(cin, line);
+    std::istringstream this_line(line);
+    std::istream_iterator<int> begin(this_line), end;
+    std::vector<int> element1(begin, end);
 
-    int val = 100;
-    LeftistNode newL(val);
-    LeftistNode newL(300);
+    getline(cin, line);
+    std::istringstream this_line2(line);
+    std::istream_iterator<int> begin2(this_line2), end2;
+    std::vector<int> element2(begin2, end2);
 
-    // LeftistHeap heap1;
-    // LeftistHeap heap2;
+    cout << endl << element1.size() << endl;
+    cout << element2.size() << endl;
+
+    LeftistHeap heap1(element1);
+    LeftistHeap heap2(element2);
 
 }
 
-// 執行程式: Ctrl + F5 或 [偵錯] > [啟動但不偵錯] 功能表
-// 偵錯程式: F5 或 [偵錯] > [啟動偵錯] 功能表
+/*
+// Test Case 00
+9 3
+1 3 7 11 15 19 0 23 21 0 0 27
+6 8 0 25
+>> 3
+>> 1 3 6 11 15 8 7 23 21 0 0 25 0 19 0 0 0 0 0 0 0 0 0 0 0 0 0 27
 
-// 開始使用的提示: 
-//   1. 使用 [方案總管] 視窗，新增/管理檔案
-//   2. 使用 [Team Explorer] 視窗，連線到原始檔控制
-//   3. 使用 [輸出] 視窗，參閱組建輸出與其他訊息
-//   4. 使用 [錯誤清單] 視窗，檢視錯誤
-//   5. 前往 [專案] > [新增項目]，建立新的程式碼檔案，或是前往 [專案] > [新增現有項目]，將現有程式碼檔案新增至專案
-//   6. 之後要再次開啟此專案時，請前往 [檔案] > [開啟] > [專案]，然後選取 .sln 檔案
+// Test Case 01
+5 4
+4 6 8 8 6
+3 5 6 9
+>> 2
+>> 3 4 5 6 6 9 0 8 6 8
+*/

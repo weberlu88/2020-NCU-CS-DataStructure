@@ -38,3 +38,8 @@ int main() {
     };
 
 }
+
+/*
+std::vector numbers(std::istream_iterator<int>(std::cin),
+                                std::istream_iterator<int>());
+*/
