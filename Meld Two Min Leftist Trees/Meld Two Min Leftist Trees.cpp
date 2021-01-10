@@ -32,21 +32,27 @@ class LeftistHeap {
 private:
     LeftistNode* root;
     // Internal method to merge two roots.
-    LeftistNode* Merge(LeftistNode* h1, LeftistNode* h2);
+    LeftistNode* Merge(LeftistNode* x, LeftistNode* y);
     // Internal method to swap node's two children. 
     void swapChildren(LeftistNode* t);
     // Internal method to insert nodes in level order recursively
     LeftistNode* insertLevelOrder(LeftistNode* root, int index, int value);
+    /* Internal method to compute the "height" of a tree.  Farthest leaf node's height = 1. External node's height = 0. */
+    int height(LeftistNode* node);
 
     /* Deal with Heap transformation between 'Array-style' & 'Tree-style'. */
-    int capacity = 0;
+    int size = 0; // non zero elements
+    int capacity = 0; // length of array in array representation. len =  2 ^ (tree height)  - 1
     vector<int> items;
+
+    void setItems();
+
     int getRightChildIndex(int parentIndex) { return parentIndex * 2 + 2; }
     int getLeftChildIndex(int parentIndex) { return parentIndex * 2 + 1; }
     int getParentIndex(int childIndex) { return (childIndex - 1) / 2; } // auto flooring
 
-    bool hasRightChild(int index) { return getRightChildIndex(index) < capacity; }
-    bool hasLeftChild(int index) { return getLeftChildIndex(index) < capacity; }
+    bool hasRightChild(int index) { return getRightChildIndex(index) < size; }
+    bool hasLeftChild(int index) { return getLeftChildIndex(index) < size; }
     bool hasParent(int index) { return getParentIndex(index) >= 0; }
 
     int rightChild(int index) { return items[getRightChildIndex(index)]; }
@@ -78,10 +84,10 @@ LeftistHeap::LeftistHeap()
 LeftistHeap::LeftistHeap(vector<int> inputArr)
 {
     items = inputArr;
-    capacity = items.size();
+    size = items.size();
 
     // Init the Heap structure
-    if (capacity)
+    if (size)
     {
         // Create the root node, call insertLevelOrder() to complete the heap, calculate s-value as well
         int index = 0, value = items[0];
@@ -93,7 +99,7 @@ LeftistHeap::LeftistHeap(vector<int> inputArr)
 LeftistNode* LeftistHeap::insertLevelOrder(LeftistNode* root, int index, int value)
 {
     // Recursively case for recursion
-    if (index < capacity) {
+    if (index < size) {
 
         // create the node with NULL childs
         LeftistNode* temp = new LeftistNode(value);
@@ -129,12 +135,41 @@ void LeftistHeap::Merge(LeftistHeap& rhs)
         return;
     root = Merge(root, rhs.root); // merge itself with rhs
     rhs.root = NULL;
+    size += rhs.size;
+    rhs.size = 0;
+    rhs.capacity = 0;
+    // reset items[] by converting tree to array ################ @@@@@
+    rhs.items.clear();
 }
 
-// Internal method to merge two roots.
-LeftistNode* LeftistHeap::Merge(LeftistNode* h1, LeftistNode* h2)
+// Internal method to merge two roots. (MinHeap)
+LeftistNode* LeftistHeap::Merge(LeftistNode* x, LeftistNode* y)
 {
-    return NULL;
+    if (x == NULL) { return y; }
+    if (y == NULL) { return x; }
+    
+    // make sure A.key is smaller, if A.key > B.key then SWAP(A, B)
+    if (x->element > y->element) {
+        LeftistNode* temp = x;
+        x = y;
+        y = temp;
+    }
+
+    // recursive call merging 'r-child' with another one heap
+    x->rightChild = Merge(x->rightChild, y);
+
+    // after merged, left child doesn't exist, so swing right child to the left side
+    // x.s was, and remains, 1
+    if (x->leftChild == NULL) 
+        swapChildren(x); 
+    // left child does exist, so compare s-values
+    // since we know the right child has the lower s-value, we can just add one to its s-value
+    else {
+        if (x->leftChild->dist < x->rightChild->dist) 
+            swapChildren(x);
+        x->dist = x->rightChild->dist + 1;
+    }
+    return x;
 }
 
 // Internal method to swap node's two children. 
@@ -143,6 +178,16 @@ void LeftistHeap::swapChildren(LeftistNode* t)
     LeftistNode* temp = t->leftChild;
     t->leftChild = t->rightChild;
     t->rightChild = temp;
+}
+
+/* Compute the "height" of a tree.  Farthest leaf node's height = 1. External node's height = 0. */
+int LeftistHeap::height(LeftistNode* node)
+{
+    if (node == NULL)
+        return 0;
+    else
+        /* compute the height of each subtree, use the larger one */
+        return max(height(node->leftChild), height(node->rightChild)) + 1;
 }
 
 int main()
@@ -170,6 +215,8 @@ int main()
 
     LeftistHeap heap1(element1);
     LeftistHeap heap2(element2);
+
+    heap1.Merge(heap2);
 
 }
 
